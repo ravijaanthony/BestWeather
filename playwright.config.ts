@@ -1,9 +1,21 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  test: {
-    environment: "node",
-    include: ["tests/e2e/**/*.spec.ts"],
-    testTimeout: 30000,
+  testDir: "./tests/e2e",
+  testTimeout: 30000,
+  use: {
+    baseURL: "http://localhost:3000",
   },
+  webServer: {
+    command: "npm run dev",
+    port: 3000,
+    reuseExistingServer: !process.env.CI,
+    timeout: 30000,
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+    },
+  ],
 });
