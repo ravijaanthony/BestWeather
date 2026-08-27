@@ -14,7 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV DOCKER=true
 
-RUN npm run test:all
+RUN npx vitest run
 RUN npm run build
 
 FROM base AS runner
