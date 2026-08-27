@@ -12,6 +12,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV DOCKER=true
 
 RUN npm run test:all
 RUN npm run build
