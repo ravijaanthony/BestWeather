@@ -37,7 +37,7 @@ Required variables:
 | `OPENWEATHER_API_KEY` | Your OpenWeatherMap API key |
 | `AUTH0_SECRET` | Random 32-byte hex string (generate with `openssl rand -hex 32`) |
 | `AUTH0_BASE_URL` | Your app URL (e.g., `http://localhost:3000`) |
-| `AUTH0_ISSUER_BASE_URL` | Your Auth0 tenant URL (e.g., `https://your-tenant.auth0.com`) |
+| `AUTH0_DOMAIN` | Your Auth0 tenant URL (e.g., `https://your-tenant.auth0.com`) |
 | `AUTH0_CLIENT_ID` | Auth0 application client ID |
 | `AUTH0_CLIENT_SECRET` | Auth0 application client secret |
 | `REDIS_URL` | Redis connection URL (optional, app works without it) |
@@ -153,7 +153,7 @@ docker build -t bestweather .
 docker run -p 3000:3000 \
   -e OPENWEATHER_API_KEY=your_key \
   -e AUTH0_SECRET=your_secret \
-  -e AUTH0_ISSUER_BASE_URL=https://your-tenant.auth0.com \
+  -e AUTH0_DOMAIN=https://your-tenant.auth0.com \
   -e AUTH0_CLIENT_ID=your_client_id \
   -e AUTH0_CLIENT_SECRET=your_client_secret \
   bestweather
