@@ -1,6 +1,50 @@
+import { Suspense } from "react";
 import { auth0 } from "@/lib/auth/auth0";
 
-export default async function Home() {
+function HomeSkeleton() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background px-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="h-9 w-64 bg-secondary/10 rounded animate-pulse mx-auto" />
+          <div className="h-4 w-80 bg-secondary/10 rounded animate-pulse mx-auto mt-3" />
+        </div>
+
+        <div className="bg-white/60 border border-secondary/20 rounded-xl p-8 shadow-sm">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/10 mb-4">
+              <div className="w-8 h-8 bg-secondary/20 rounded animate-pulse" />
+            </div>
+            <div className="h-5 w-20 bg-secondary/10 rounded animate-pulse mx-auto" />
+            <div className="h-3 w-48 bg-secondary/10 rounded animate-pulse mx-auto mt-2" />
+          </div>
+
+          <div className="h-12 w-full bg-secondary/10 rounded-lg animate-pulse" />
+
+          <div className="mt-6 pt-4 border-t border-secondary/10">
+            <div className="flex flex-wrap justify-center gap-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-4 w-16 bg-secondary/10 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="h-3 w-56 bg-secondary/10 rounded animate-pulse mx-auto mt-6" />
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<HomeSkeleton />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+async function HomeContent() {
   const session = await auth0.getSession();
 
   if (!session) {

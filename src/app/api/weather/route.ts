@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth/auth0";
-import { fetchAllWeather } from "@/lib/weather/fetcher";
-import { getCachedWeather, setCachedWeather } from "@/lib/cache/redis";
+import { fetchWeatherForCity } from "@/lib/weather/fetcher";
 import citiesData from "@/data/cities.json";
 
 export async function GET() {
@@ -13,20 +12,7 @@ export async function GET() {
   const cityIds = citiesData.List.map((c) => c.CityCode);
 
   const results = await Promise.all(
-    cityIds.map(async (cityId) => {
-      let weather = await getCachedWeather(cityId);
-
-      if (!weather) {
-        const fetched = await fetchAllWeather([cityId]);
-        weather = fetched[0] ?? null;
-
-        if (weather) {
-          await setCachedWeather(cityId, weather);
-        }
-      }
-
-      return weather;
-    })
+    cityIds.map((id) => fetchWeatherForCity(id))
   );
 
   const weatherData = results.filter(
