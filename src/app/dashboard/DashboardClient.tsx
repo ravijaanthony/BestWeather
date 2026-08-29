@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { CityRanking } from "@/types";
 import { ComfortGauge } from "@/components/ComfortGauge";
 import { WeightLegend } from "@/components/WeightLegend";
@@ -11,13 +10,17 @@ import { CityRankingList } from "@/components/CityRankingList";
 interface DashboardClientProps {
   userName: string;
   userEmail: string;
-  userPicture: string;
+}
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) return email;
+  return `${local.slice(0, 2)}..@${domain}`;
 }
 
 export default function DashboardClient({
   userName,
   userEmail,
-  userPicture,
 }: DashboardClientProps) {
   const [rankings, setRankings] = useState<CityRanking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,20 +77,10 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex flex-col items-end text-right">
-              <div className="text-sm font-medium text-foreground">
-                {userName}
+            {userEmail && (
+              <div className="hidden sm:flex flex-col items-end text-right">
+                <div className="text-xs text-secondary">{maskEmail(userEmail)}</div>
               </div>
-              <div className="text-xs text-secondary">{userEmail}</div>
-            </div>
-            {userPicture && (
-              <Image
-                src={userPicture}
-                alt={userName}
-                width={36}
-                height={36}
-                className="rounded-full border border-secondary/20"
-              />
             )}
             <a
               href="/auth/logout"

@@ -4,12 +4,14 @@ import { windScore } from "./wind";
 import { cloudinessScore } from "./cloudiness";
 import type { ComfortBreakdown } from "@/types";
 
-export function calculateComfortIndex(
+export async function calculateComfortIndex(
   temperature: number,
   humidity: number,
   windSpeed: number,
   cloudiness: number
-): ComfortBreakdown {
+): Promise<ComfortBreakdown> {
+  "use cache";
+
   const tempScore = temperatureScore(temperature);
   const humScore = humidityScore(humidity);
   const windSc = windScore(windSpeed);

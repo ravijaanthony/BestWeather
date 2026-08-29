@@ -3,15 +3,15 @@ import { describe, it, expect } from "vitest";
 describe("Comfort Index ranking correctness", () => {
   it("Dublin-like weather scores higher than Phoenix-like weather", async () => {
     const { calculateComfortIndex } = await import("@/lib/comfort");
-    const dublin = calculateComfortIndex(9, 75, 5, 90);
-    const phoenix = calculateComfortIndex(35, 15, 2, 5);
+    const dublin = await calculateComfortIndex(9, 75, 5, 90);
+    const phoenix = await calculateComfortIndex(35, 15, 2, 5);
     expect(dublin.total).toBeGreaterThan(phoenix.total);
   });
 
   it("Bergen-like weather scores higher than Dubai-like weather", async () => {
     const { calculateComfortIndex } = await import("@/lib/comfort");
-    const bergen = calculateComfortIndex(6, 80, 6, 95);
-    const dubai = calculateComfortIndex(38, 20, 3, 5);
+    const bergen = await calculateComfortIndex(6, 80, 6, 95);
+    const dubai = await calculateComfortIndex(38, 20, 3, 5);
     expect(bergen.total).toBeGreaterThan(dubai.total);
   });
 
@@ -31,12 +31,13 @@ describe("Comfort Index ranking correctness", () => {
       { name: "Bergen", temp: 6, humidity: 80, wind: 6, clouds: 95 },
     ];
 
-    const ranked = cities
-      .map((c) => ({
+    const ranked = await Promise.all(
+      cities.map(async (c) => ({
         ...c,
-        comfort: calculateComfortIndex(c.temp, c.humidity, c.wind, c.clouds),
+        comfort: await calculateComfortIndex(c.temp, c.humidity, c.wind, c.clouds),
       }))
-      .sort((a, b) => b.comfort.total - a.comfort.total);
+    );
+    ranked.sort((a, b) => b.comfort.total - a.comfort.total);
 
     expect(ranked[0].name).not.toBe("Colombo");
     expect(ranked[ranked.length - 1].name).not.toBe("Dublin");

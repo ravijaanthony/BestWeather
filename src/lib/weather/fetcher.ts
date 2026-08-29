@@ -6,6 +6,8 @@ const OWM_BASE = "https://api.openweathermap.org/data/2.5/weather";
 export async function fetchWeatherForCity(
   cityId: string
 ): Promise<WeatherData | null> {
+  "use cache";
+
   const apiKey = process.env.OPENWEATHER_API_KEY;
   if (!apiKey) {
     console.error("OPENWEATHER_API_KEY is not set");

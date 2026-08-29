@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth/auth0";
-import { fetchAllWeather } from "@/lib/weather/fetcher";
-import {
-  getCachedWeather,
-  setCachedWeather,
-  getCachedComfort,
-  setCachedComfort,
-} from "@/lib/cache/redis";
+import { fetchWeatherForCity } from "@/lib/weather/fetcher";
 import { calculateComfortIndex } from "@/lib/comfort";
 import citiesData from "@/data/cities.json";
 import type { CityRanking } from "@/types";
@@ -25,30 +19,15 @@ export async function GET() {
   const rankings: CityRanking[] = [];
 
   for (const cityId of cityIds) {
-    let weather = await getCachedWeather(cityId);
-
-    if (!weather) {
-      const fetched = await fetchAllWeather([cityId]);
-      weather = fetched[0] ?? null;
-
-      if (weather) {
-        await setCachedWeather(cityId, weather);
-      }
-    }
-
+    const weather = await fetchWeatherForCity(cityId);
     if (!weather) continue;
 
-    let comfort = await getCachedComfort(cityId);
-
-    if (!comfort) {
-      comfort = calculateComfortIndex(
-        weather.temperature,
-        weather.humidity,
-        weather.windSpeed,
-        weather.cloudiness
-      );
-      await setCachedComfort(cityId, comfort);
-    }
+    const comfort = await calculateComfortIndex(
+      weather.temperature,
+      weather.humidity,
+      weather.windSpeed,
+      weather.cloudiness
+    );
 
     rankings.push({
       rank: 0,
