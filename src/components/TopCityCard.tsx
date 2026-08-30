@@ -178,10 +178,10 @@ export function TopCityCard({ city }: TopCityCardProps) {
                         {formatDay(p.time)}
                       </td>
                       <td className="text-right py-1.5 px-2 sm:px-3">
-                        {p.temperature}°C
+                        {p.temperature.toFixed(1)}°C
                       </td>
                       <td className="text-right py-1.5 px-2 sm:px-3 hidden lg:table-cell">{p.humidity}%</td>
-                      <td className="text-right py-1.5 px-2 sm:px-3 hidden lg:table-cell">{p.windSpeed}m/s</td>
+                      <td className="text-right py-1.5 px-2 sm:px-3 hidden lg:table-cell">{p.windSpeed.toFixed(1)}m/s</td>
                       <td className="text-right py-1.5 px-2 sm:px-3 hidden lg:table-cell">{p.cloudiness}%</td>
                       <td
                         className={`text-right py-1.5 pl-2 sm:pl-3 font-semibold ${

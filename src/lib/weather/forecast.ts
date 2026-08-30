@@ -26,9 +26,9 @@ export async function fetchForecast(
           const clouds = item.clouds as Record<string, number>;
           const weather = (item.weather as Array<Record<string, string>>)[0];
 
-          const temp = Math.round(main.temp * 10) / 10;
+          const temp = Number(main.temp.toFixed(1));
           const humidity = main.humidity;
-          const windSpeed = wind.speed;
+          const windSpeed = Number(wind.speed.toFixed(1));
           const cloudiness = clouds.all;
 
           const comfort = await calculateComfortIndex(

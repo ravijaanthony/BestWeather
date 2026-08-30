@@ -56,7 +56,9 @@ export function CityChart({ forecast }: CityChartProps) {
               fontSize: "12px",
             }}
             formatter={(value, name) => {
-              if (name === "temp") return [`${value}°C`, "Temperature"];
+              if (name === "temp") {
+                return [`${Number(value).toFixed(1)}°C`, "Temperature"];
+              }
               return [String(value), String(name)];
             }}
             labelFormatter={(label) => `Time: ${label}`}
