@@ -24,6 +24,7 @@ const mockForecast: ForecastData = {
       windSpeed: 4.2,
       cloudiness: 80,
       description: "overcast clouds",
+      score: 74,
     },
     {
       time: "2025-01-15 12:00:00",
@@ -32,6 +33,7 @@ const mockForecast: ForecastData = {
       windSpeed: 3.8,
       cloudiness: 70,
       description: "broken clouds",
+      score: 78,
     },
     {
       time: "2025-01-15 15:00:00",
@@ -40,6 +42,7 @@ const mockForecast: ForecastData = {
       windSpeed: 3.5,
       cloudiness: 60,
       description: "scattered clouds",
+      score: 72,
     },
   ],
 };

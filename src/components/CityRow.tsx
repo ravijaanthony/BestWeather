@@ -37,10 +37,10 @@ export function CityRow({ ranking }: CityRowProps) {
   return (
     <div className="border border-secondary/20 rounded-lg bg-white/50 dark:bg-foreground/5 transition-colors">
       <div
-        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-secondary/5"
+        className="flex items-center gap-2 sm:gap-4 p-4 cursor-pointer hover:bg-secondary/5"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="text-lg font-mono font-bold text-secondary w-8 text-right">
+        <div className="text-lg font-mono font-bold text-secondary w-6 sm:w-8 text-right">
           {ranking.rank}
         </div>
 
@@ -48,12 +48,12 @@ export function CityRow({ ranking }: CityRowProps) {
           <div className="font-medium text-foreground truncate">
             {ranking.cityName}
           </div>
-          <div className="text-sm text-secondary capitalize">
+          <div className="text-sm text-secondary capitalize truncate">
             {ranking.description}
           </div>
         </div>
 
-        <div className="text-right">
+        <div className="text-right hidden sm:block">
           <div className="font-mono text-sm text-secondary">
             {ranking.temperature.toFixed(1)}°C
           </div>
@@ -87,7 +87,7 @@ export function CityRow({ ranking }: CityRowProps) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm mb-4">
             <div>
               <div className="text-secondary text-xs uppercase tracking-wide">
-                Temperature
+                Temperature Score
               </div>
               <div className="font-mono font-medium mt-1">
                 {ranking.comfort.temperatureScore}
@@ -95,7 +95,7 @@ export function CityRow({ ranking }: CityRowProps) {
             </div>
             <div>
               <div className="text-secondary text-xs uppercase tracking-wide">
-                Humidity
+                Humidity Score
               </div>
               <div className="font-mono font-medium mt-1">
                 {ranking.comfort.humidityScore}
@@ -103,7 +103,7 @@ export function CityRow({ ranking }: CityRowProps) {
             </div>
             <div>
               <div className="text-secondary text-xs uppercase tracking-wide">
-                Wind
+                Wind Score
               </div>
               <div className="font-mono font-medium mt-1">
                 {ranking.comfort.windScore}
@@ -111,7 +111,7 @@ export function CityRow({ ranking }: CityRowProps) {
             </div>
             <div>
               <div className="text-secondary text-xs uppercase tracking-wide">
-                Cloudiness
+                Cloudiness Score
               </div>
               <div className="font-mono font-medium mt-1">
                 {ranking.comfort.cloudinessScore}

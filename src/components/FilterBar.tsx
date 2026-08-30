@@ -49,6 +49,13 @@ const COMFORT_TIERS: { value: ComfortTier; label: string; color: string }[] = [
   },
 ];
 
+const TIER_LABELS: Record<ComfortTier, string> = {
+  all: "All",
+  high: "High 70+",
+  moderate: "Mod 40–69",
+  low: "Low <40",
+};
+
 export function FilterBar({
   sortField,
   sortDir,
@@ -64,11 +71,11 @@ export function FilterBar({
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <label className="text-xs text-secondary uppercase tracking-wide">
-            Sort
+            Sort by
           </label>
           <Listbox value={sortField} onChange={onSortFieldChange}>
             <div className="relative">
-              <ListboxButton className="text-xs bg-transparent border border-secondary/20 rounded px-2 py-1 text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-secondary/40 text-left min-w-[130px]">
+              <ListboxButton className="text-xs bg-transparent border border-secondary/20 rounded px-2 py-1 text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-secondary/40 text-left min-w-0 sm:min-w-[130px]">
                 {selected.label}
               </ListboxButton>
               <ListboxOptions className="absolute z-50 mt-1 w-full bg-background border border-secondary/20 rounded shadow-lg text-xs font-mono">
@@ -92,24 +99,23 @@ export function FilterBar({
             onClick={() =>
               onSortDirChange(sortDir === "asc" ? "desc" : "asc")
             }
-            className="p-1 border border-secondary/20 rounded hover:bg-secondary/10 transition-colors"
-            aria-label={`Sort ${sortDir === "asc" ? "descending" : "ascending"}`}
+            className={`text-xs font-mono px-2 py-1 rounded border transition-colors cursor-pointer ${
+              sortDir === "asc"
+                ? "text-high-comfort border-high-comfort/30 bg-high-comfort/10"
+                : "text-secondary border-secondary/20 hover:bg-secondary/10"
+            }`}
+            aria-label={
+              sortDir === "asc"
+                ? "Ascending order (lowest to highest)"
+                : "Descending order (highest to lowest)"
+            }
+            title={
+              sortDir === "asc"
+                ? "Ascending — lowest to highest"
+                : "Descending — highest to lowest"
+            }
           >
-            <svg
-              className={`w-3 h-3 text-secondary transition-transform ${
-                sortDir === "desc" ? "rotate-180" : ""
-              }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 15.75l7.5-7.5 7.5 7.5"
-              />
-            </svg>
+            {sortDir === "asc" ? "ASC" : "DESC"}
           </button>
         </div>
 
@@ -120,6 +126,15 @@ export function FilterBar({
             <button
               key={tier.value}
               onClick={() => onComfortTierChange(tier.value)}
+              title={
+                tier.value === "all"
+                  ? "Show all cities"
+                  : tier.value === "high"
+                    ? "Comfort score 70 or higher"
+                    : tier.value === "moderate"
+                      ? "Comfort score 40 to 69"
+                      : "Comfort score below 40"
+              }
               className={`text-xs px-2.5 py-1 rounded-full transition-colors ${
                 comfortTier === tier.value
                   ? tier.value === "all"
@@ -128,14 +143,10 @@ export function FilterBar({
                   : "text-secondary hover:bg-secondary/10"
               }`}
             >
-              {tier.label}
+              {TIER_LABELS[tier.value]}
             </button>
           ))}
         </div>
-      </div>
-
-      <div className="text-[10px] text-secondary/60 pl-[52px]">
-        High: 70+ · Moderate: 40–69 · Low: &lt;40
       </div>
     </div>
   );

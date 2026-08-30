@@ -80,6 +80,9 @@ export interface CityRanking {
   cityName: string;
   country: string;
   temperature: number;
+  humidity: number;
+  windSpeed: number;
+  cloudiness: number;
   description: string;
   comfort: ComfortBreakdown;
 }
@@ -91,6 +94,7 @@ export interface ForecastPoint {
   windSpeed: number;
   cloudiness: number;
   description: string;
+  score: number;
 }
 
 export interface ForecastData {

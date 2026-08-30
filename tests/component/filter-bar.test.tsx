@@ -26,27 +26,27 @@ describe("FilterBar", () => {
     cleanup();
   });
 
-  it("renders the sort listbox button with current selection label", () => {
+  it("renders the sort by label and current selection", () => {
     render(<FilterBar {...defaultProps} />);
+    expect(screen.getByText("Sort by")).toBeTruthy();
     expect(screen.getByText("Comfort Score")).toBeTruthy();
   });
 
-  it("renders all comfort tier buttons", () => {
+  it("renders all comfort tier buttons with score ranges", () => {
     render(<FilterBar {...defaultProps} />);
     const buttons = Array.from(document.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent?.trim());
     expect(labels).toContain("All");
-    expect(labels).toContain("High");
-    expect(labels).toContain("Moderate");
-    expect(labels).toContain("Low");
+    expect(labels).toContain("High 70+");
+    expect(labels).toContain("Mod 40–69");
+    expect(labels).toContain("Low <40");
   });
 
   it("opens the listbox and selects a new sort field", () => {
     const onSort = vi.fn();
     render(<FilterBar {...defaultProps} onSortFieldChange={onSort} />);
 
-    const btn = screen.getByText("Comfort Score");
-    fireEvent.click(btn);
+    fireEvent.click(screen.getByText("Comfort Score"));
 
     const options = screen.getAllByRole("option");
     const tempOption = options.find((o) => o.textContent === "Temperature")!;
@@ -55,11 +55,12 @@ describe("FilterBar", () => {
     expect(onSort).toHaveBeenCalledWith("temperature");
   });
 
-  it("calls onSortDirChange when direction button clicked", () => {
+  it("shows DESC by default and calls onSortDirChange to flip to ASC", () => {
     const onDir = vi.fn();
     const { container } = render(
       <FilterBar {...defaultProps} onSortDirChange={onDir} />
     );
+    expect(screen.getByText("DESC")).toBeTruthy();
     const btn = container.querySelector('button[aria-label]')!;
     fireEvent.click(btn);
     expect(onDir).toHaveBeenCalledWith("asc");
@@ -69,7 +70,7 @@ describe("FilterBar", () => {
     const onTier = vi.fn();
     render(<FilterBar {...defaultProps} onComfortTierChange={onTier} />);
     const buttons = Array.from(document.querySelectorAll("button"));
-    const highBtn = buttons.find((b) => b.textContent?.trim() === "High")!;
+    const highBtn = buttons.find((b) => b.textContent?.trim() === "High 70+")!;
     fireEvent.click(highBtn);
     expect(onTier).toHaveBeenCalledWith("high");
   });
@@ -77,14 +78,7 @@ describe("FilterBar", () => {
   it("highlights active comfort tier", () => {
     render(<FilterBar {...defaultProps} comfortTier="high" />);
     const buttons = Array.from(document.querySelectorAll("button"));
-    const highBtn = buttons.find((b) => b.textContent?.trim() === "High")!;
+    const highBtn = buttons.find((b) => b.textContent?.trim() === "High 70+")!;
     expect(highBtn.className).toContain("font-medium");
-  });
-
-  it("renders the threshold legend", () => {
-    render(<FilterBar {...defaultProps} />);
-    expect(screen.getByText(/High: 70\+/)).toBeTruthy();
-    expect(screen.getByText(/Moderate: 40/)).toBeTruthy();
-    expect(screen.getByText(/Low:/)).toBeTruthy();
   });
 });

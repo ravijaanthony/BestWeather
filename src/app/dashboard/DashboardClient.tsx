@@ -3,8 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import type { CityRanking } from "@/types";
-import { ComfortGauge } from "@/components/ComfortGauge";
-import { WeightLegend } from "@/components/WeightLegend";
+import { TopCityCard } from "@/components/TopCityCard";
 import { CityRankingList } from "@/components/CityRankingList";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -131,7 +130,7 @@ export default function DashboardClient({
   return (
     <div className="flex flex-col min-h-screen">
       <header className="border-b border-secondary/20 py-4 px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">
               Weather Comfort Index
@@ -176,17 +175,9 @@ export default function DashboardClient({
 
       <main className="flex-1 py-8 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto">
-          <WeightLegend />
-
           {topCity && (
-            <div className="mb-8 mt-8">
-              <h2 className="text-sm font-medium text-secondary uppercase tracking-wide mb-4">
-                Most Comfortable City
-              </h2>
-              <ComfortGauge
-                score={topCity.comfort.total}
-                cityName={topCity.cityName}
-              />
+            <div className="mb-8">
+              <TopCityCard city={topCity} />
             </div>
           )}
 
@@ -213,13 +204,6 @@ export default function DashboardClient({
           )}
         </div>
       </main>
-
-      <footer className="border-t border-secondary/20 py-4 px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto text-center text-xs text-secondary">
-          Comfort Index: 45% Temperature, 25% Humidity, 15% Wind, 15%
-          Cloudiness
-        </div>
-      </footer>
     </div>
   );
 }

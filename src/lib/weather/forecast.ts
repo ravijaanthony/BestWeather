@@ -1,4 +1,5 @@
 import type { ForecastData, ForecastPoint } from "@/types";
+import { calculateComfortIndex } from "@/lib/comfort";
 
 const OWM_FORECAST_BASE = "https://api.openweathermap.org/data/2.5/forecast";
 
@@ -17,22 +18,37 @@ export async function fetchForecast(
     if (!response.ok) return null;
 
     const data = await response.json();
-    const points: ForecastPoint[] = data.list.map(
-      (item: Record<string, unknown>) => {
-        const main = item.main as Record<string, number>;
-        const wind = item.wind as Record<string, number>;
-        const clouds = item.clouds as Record<string, number>;
-        const weather = (item.weather as Array<Record<string, string>>)[0];
+    const points: ForecastPoint[] = await Promise.all(
+      data.list.map(
+        async (item: Record<string, unknown>) => {
+          const main = item.main as Record<string, number>;
+          const wind = item.wind as Record<string, number>;
+          const clouds = item.clouds as Record<string, number>;
+          const weather = (item.weather as Array<Record<string, string>>)[0];
 
-        return {
-          time: item.dt_txt as string,
-          temperature: Math.round(main.temp * 10) / 10,
-          humidity: main.humidity,
-          windSpeed: wind.speed,
-          cloudiness: clouds.all,
-          description: weather.description,
-        };
-      }
+          const temp = Math.round(main.temp * 10) / 10;
+          const humidity = main.humidity;
+          const windSpeed = wind.speed;
+          const cloudiness = clouds.all;
+
+          const comfort = await calculateComfortIndex(
+            temp,
+            humidity,
+            windSpeed,
+            cloudiness
+          );
+
+          return {
+            time: item.dt_txt as string,
+            temperature: temp,
+            humidity,
+            windSpeed,
+            cloudiness,
+            description: weather.description,
+            score: comfort.total,
+          };
+        }
+      )
     );
 
     return {

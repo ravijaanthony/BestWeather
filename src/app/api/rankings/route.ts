@@ -35,6 +35,9 @@ export async function GET() {
       cityName: cityMap.get(cityId) ?? weather.cityName,
       country: weather.country,
       temperature: weather.temperature,
+      humidity: weather.humidity,
+      windSpeed: weather.windSpeed,
+      cloudiness: weather.cloudiness,
       description: weather.description,
       comfort,
     });

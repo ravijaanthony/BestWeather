@@ -12,6 +12,9 @@ const mockRanking: CityRanking = {
   cityName: "London",
   country: "GB",
   temperature: 9.5,
+  humidity: 72,
+  windSpeed: 4.2,
+  cloudiness: 80,
   description: "overcast clouds",
   comfort: {
     temperatureScore: 85,
@@ -46,10 +49,10 @@ describe("CityRow", () => {
   it("expands to show breakdown on click", () => {
     render(<CityRow ranking={mockRanking} />);
     fireEvent.click(screen.getByText("London"));
-    expect(screen.getByText("Temperature")).toBeTruthy();
-    expect(screen.getByText("Humidity")).toBeTruthy();
-    expect(screen.getByText("Wind")).toBeTruthy();
-    expect(screen.getByText("Cloudiness")).toBeTruthy();
+    expect(screen.getByText("Temperature Score")).toBeTruthy();
+    expect(screen.getByText("Humidity Score")).toBeTruthy();
+    expect(screen.getByText("Wind Score")).toBeTruthy();
+    expect(screen.getByText("Cloudiness Score")).toBeTruthy();
   });
 
   it("shows forecast toggle button when expanded", () => {
