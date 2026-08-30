@@ -83,3 +83,18 @@ export interface CityRanking {
   description: string;
   comfort: ComfortBreakdown;
 }
+
+export interface ForecastPoint {
+  time: string;
+  temperature: number;
+  humidity: number;
+  windSpeed: number;
+  cloudiness: number;
+  description: string;
+}
+
+export interface ForecastData {
+  cityId: string;
+  cityName: string;
+  points: ForecastPoint[];
+}
