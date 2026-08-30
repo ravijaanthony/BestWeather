@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";

@@ -1,6 +1,5 @@
-/// <reference types="vitest" />
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach, vi, beforeAll } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { CityChart } from "@/components/CityChart";
@@ -11,7 +10,10 @@ class MockResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-(globalThis as any).ResizeObserver = MockResizeObserver;
+Object.defineProperty(globalThis, "ResizeObserver", {
+  value: MockResizeObserver,
+  writable: true,
+});
 
 const mockForecast: ForecastData = {
   cityId: "2643743",

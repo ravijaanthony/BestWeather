@@ -14,7 +14,6 @@ import {
 } from "@/components/FilterBar";
 
 interface DashboardClientProps {
-  userName: string;
   userEmail: string;
 }
 
@@ -25,7 +24,6 @@ function maskEmail(email: string): string {
 }
 
 export default function DashboardClient({
-  userName,
   userEmail,
 }: DashboardClientProps) {
   const [rankings, setRankings] = useState<CityRanking[]>([]);

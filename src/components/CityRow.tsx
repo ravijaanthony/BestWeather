@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { CityRanking, ForecastData } from "@/types";
 import { CityChart } from "./CityChart";
 
@@ -21,18 +21,17 @@ export function CityRow({ ranking }: CityRowProps) {
         ? "text-moderate"
         : "text-low-comfort";
 
-  useEffect(() => {
-    if (showForecast && !forecast && !forecastLoading) {
-      setForecastLoading(true);
-      fetch(`/api/forecast?cityId=${ranking.cityId}`)
-        .then((res) => (res.ok ? res.json() : null))
-        .then((data) => {
-          setForecast(data?.forecast ?? null);
-          setForecastLoading(false);
-        })
-        .catch(() => setForecastLoading(false));
-    }
-  }, [showForecast, forecast, forecastLoading, ranking.cityId]);
+  const loadForecast = () => {
+    if (forecast || forecastLoading) return;
+    setForecastLoading(true);
+    fetch(`/api/forecast?cityId=${ranking.cityId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        setForecast(data?.forecast ?? null);
+        setForecastLoading(false);
+      })
+      .catch(() => setForecastLoading(false));
+  };
 
   return (
     <div className="border border-secondary/20 rounded-lg bg-white/50 dark:bg-foreground/5 transition-colors">
@@ -122,7 +121,9 @@ export function CityRow({ ranking }: CityRowProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShowForecast(!showForecast);
+              const next = !showForecast;
+              setShowForecast(next);
+              if (next) loadForecast();
             }}
             className="text-xs text-secondary border border-secondary/20 rounded px-3 py-1.5 hover:bg-secondary/10 transition-colors"
           >
