@@ -72,4 +72,57 @@ describe("calculateComfortIndex", () => {
     const phoenix = await calculateComfortIndex(35, 15, 2, 5);
     expect(dublin.total).toBeGreaterThan(phoenix.total);
   });
+
+  it("clamps total to 100 maximum", async () => {
+    const result = await calculateComfortIndex(12, 45, 3, 95);
+    expect(result.total).toBeLessThanOrEqual(100);
+  });
+
+  it("clamps total to 0 minimum", async () => {
+    const result = await calculateComfortIndex(50, 100, 30, 0);
+    expect(result.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it("handles zero wind speed", async () => {
+    const result = await calculateComfortIndex(12, 45, 0, 70);
+    expect(result.windScore).toBeGreaterThanOrEqual(0);
+    expect(result.total).toBeGreaterThanOrEqual(0);
+  });
+
+  it("handles 100% humidity", async () => {
+    const result = await calculateComfortIndex(12, 100, 3, 70);
+    expect(result.humidityScore).toBeLessThanOrEqual(50);
+  });
+
+  it("handles 0% cloudiness", async () => {
+    const result = await calculateComfortIndex(12, 45, 3, 0);
+    expect(result.cloudinessScore).toBeLessThanOrEqual(50);
+  });
+
+  it("handles extreme cold with high wind", async () => {
+    const result = await calculateComfortIndex(-20, 40, 20, 50);
+    expect(result.total).toBeGreaterThanOrEqual(0);
+    expect(result.total).toBeLessThanOrEqual(100);
+  });
+
+  it("handles extreme heat with high humidity", async () => {
+    const result = await calculateComfortIndex(45, 95, 1, 0);
+    expect(result.total).toBeGreaterThanOrEqual(0);
+    expect(result.total).toBeLessThanOrEqual(100);
+  });
+
+  it("breakdown scores are integers", async () => {
+    const result = await calculateComfortIndex(15, 50, 3, 70);
+    expect(Number.isInteger(result.temperatureScore)).toBe(true);
+    expect(Number.isInteger(result.humidityScore)).toBe(true);
+    expect(Number.isInteger(result.windScore)).toBe(true);
+    expect(Number.isInteger(result.cloudinessScore)).toBe(true);
+  });
+
+  it("weighting: temperature has highest impact", async () => {
+    const good = await calculateComfortIndex(12, 50, 3, 50);
+    const bad = await calculateComfortIndex(30, 50, 3, 50);
+    const diff = good.total - bad.total;
+    expect(diff).toBeGreaterThan(10);
+  });
 });

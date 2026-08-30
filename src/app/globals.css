@@ -9,6 +9,15 @@
   --low-comfort: #b0572e;
 }
 
+.dark {
+  --background: #0f1210;
+  --foreground: #e8e9e4;
+  --secondary: #8a918c;
+  --high-comfort: #5ea882;
+  --moderate: #c9a94e;
+  --low-comfort: #d47a4e;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
