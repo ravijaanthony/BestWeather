@@ -6,9 +6,9 @@ A web application that ranks cities by weather comfort using a custom Comfort In
 
 - **Frontend:** Next.js 16, React 19, TypeScript, Tailwind CSS v4
 - **Backend:** Next.js API routes (App Router)
-- **Authentication:** Auth0
+- **Authentication:** Auth0 (with MFA via email verification, restricted signups)
 - **Weather Data:** OpenWeatherMap API
-- **Caching:** Redis (with graceful fallback)
+- **Caching:** Next.js `"use cache"` directive (built-in, no external dependencies)
 - **Validation:** Zod
 - **Testing:** Vitest (unit/integration), Playwright (E2E)
 - **CI:** GitHub Actions
@@ -40,7 +40,6 @@ Required variables:
 | `AUTH0_DOMAIN` | Your Auth0 tenant URL (e.g., `https://your-tenant.auth0.com`) |
 | `AUTH0_CLIENT_ID` | Auth0 application client ID |
 | `AUTH0_CLIENT_SECRET` | Auth0 application client secret |
-| `REDIS_URL` | Redis connection URL (optional, app works without it) |
 
 ### 3. Auth0 Configuration
 
@@ -49,7 +48,32 @@ Required variables:
 3. Add `http://localhost:3000` to **Allowed Logout URLs**
 4. Copy the client ID and secret to your `.env` file
 
-### 4. Run Development Server
+### 4. Multi-Factor Authentication (MFA)
+
+MFA is enabled via email verification:
+
+1. In the Auth0 Dashboard, go to **Security → Multi-factor Auth**
+2. Enable the **Email** factor (and optionally others like OTP/Authenticator)
+3. Configure a Policy: require MFA for all users (or start with a first-login prompt)
+4. After enabling, users must verify with a one-time code (sent to their email) after their primary login
+
+### 5. Restrict Signups
+
+Public signups are disabled — only whitelisted users can log in:
+
+1. In the Auth0 Dashboard, go to **Authentication → Database → Settings**
+2. Turn **Off** "Enable Signups" so no one can self-register
+3. In **Authentication → Database → Users**, manually add the users allowed to use the app
+4. Login is limited to that pre-created whitelist
+
+Create the test user in **Authentication → Database → Users**:
+
+| Field | Value |
+|-------|-------|
+| Email | (test user email — see assignment) |
+| Password | (test user password — see assignment) |
+
+### 6. Run Development Server
 
 ```bash
 npm run dev
@@ -94,10 +118,26 @@ Score = 100 × (
 
 ## Cache Design
 
-- **Cache keys:** `weather:{cityId}` and `comfort:{cityId}`
-- **TTL:** 300 seconds (5 minutes)
-- **Fallback:** If Redis is unavailable, the app continues without caching
-- **Debug endpoint:** `GET /api/cache/status` shows HIT/MISS and TTL for each city
+- **Mechanism:** Next.js `"use cache"` directive on the data-fetching functions
+- **Cached functions:**
+  - `fetchWeatherForCity` — raw current weather from OpenWeatherMap
+  - `fetchForecast` — raw 5-day forecast, plus per-point comfort scores
+  - `calculateComfortIndex` — the processed Comfort Index output (cached separately)
+- **TTL:** Next.js default cache lifetime (300 seconds / 5 minutes) — matching the
+  requirement to cache raw weather API responses for 5 minutes
+- **Cache keying:** Arguments-based — each unique `cityId` / parameter set produces
+  its own cache entry
+- **No external dependencies:** Caching is handled entirely by Next.js — no Redis
+  or Memcached required, so there is no infrastructure to provision or fail
+
+> **Note on the cache-status debug endpoint:** The assignment asks for a
+> `HIT / MISS` cache-status endpoint, and an earlier version of this app had
+> `GET /api/cache/status`. That endpoint was removed when caching moved to the
+> Next.js `"use cache"` directive. Next.js does not expose a first-class
+> per-request `HIT / MISS` status header for this directive, so today the
+> effective observable view of the cache is latency on `GET /api/rankings`
+> (a warm cache returns fast; a cold cache re-fetches from OpenWeatherMap). This
+> is tracked as a known limitation below.
 
 ## Authentication Design
 
@@ -108,9 +148,13 @@ Score = 100 × (
 
 ## Known Limitations
 
-- Redis is optional; without it, every request fetches fresh data from OpenWeatherMap
+- **Cache-status debug endpoint:** The assignment's `HIT / MISS` cache-status
+  endpoint was removed when caching moved to the Next.js `"use cache"`
+  directive; observe cache behaviour via latencies on `/api/rankings` instead.
+- Cache TTL relies on the Next.js default (5 minutes); there is no programmatic
+  cache invalidation (`cacheTag` / `revalidateTag` are not used)
 - Auth0 requires a real tenant configuration; placeholder values won't work
-- The Comfort Index uses static weights that don't adapt to seasons
+- The Comfort Index uses static weights that don't adapt to seasons or regions
 - Weather data is real-time; rankings change based on current conditions
 
 ## Testing
@@ -135,9 +179,9 @@ npm run test:e2e
 
 ### Test Coverage
 
-- **Unit tests:** Comfort Index scoring functions (temperature, humidity, wind, cloudiness), weather schema validation, cache key patterns
+- **Unit tests:** Comfort Index scoring functions (temperature, humidity, wind, cloudiness), weather schema validation, converter utilities
 - **Integration tests:** API authentication protection, ranking correctness with real algorithm
-- **E2E tests:** Dashboard loading, responsive layout, weight legend display
+- **E2E tests:** Dashboard loading, responsive layout
 
 ## Docker
 
@@ -169,32 +213,60 @@ The Dockerfile uses a multi-stage build:
 ```
 src/
 ├── app/
-│   ├── dashboard/page.tsx      # Main dashboard page
-│   ├── api/
-│   │   ├── weather/route.ts    # Weather data endpoint
-│   │   ├── rankings/route.ts   # Ranked cities endpoint
-│   │   └── cache/status/route.ts # Cache debug endpoint
-│   ├── layout.tsx              # Root layout (IBM Plex fonts)
-│   ├── page.tsx                # Redirects to /dashboard
-│   └── globals.css             # Overcast palette + Tailwind config
+│   ├── page.tsx                  # Landing page / sign-in gate
+│   ├── layout.tsx                # Root layout (IBM Plex fonts, ThemeProvider)
+│   ├── globals.css               # Overcast palette + Tailwind v4 config
+│   ├── dashboard/
+│   │   ├── page.tsx              # Server component (loads rankings)
+│   │   ├── DashboardClient.tsx   # Client-side dashboard logic
+│   │   └── DashboardSkeleton.tsx # Loading skeleton
+│   └── api/
+│       ├── weather/route.ts      # Current weather endpoint (auth-gated)
+│       ├── rankings/route.ts     # Ranked cities endpoint (auth-gated)
+│       └── forecast/route.ts     # 5-day forecast endpoint (auth-gated)
 ├── components/
-│   ├── ComfortGauge.tsx        # Semicircular gauge SVG
-│   ├── WeightLegend.tsx        # Parameter weight display
-│   ├── CityRankingList.tsx     # Ranked city list
-│   └── CityRow.tsx             # Expandable city row
+│   ├── TopCityCard.tsx           # "Most Comfortable" card + 5-day trend
+│   ├── FilterBar.tsx             # Sort (Listbox) + comfort tier filters
+│   ├── CityRankingList.tsx       # Ranked city list
+│   ├── CityRow.tsx               # Expandable city row
+│   ├── CityChart.tsx             # Recharts temperature trend chart
+│   └── ThemeToggle.tsx           # Dark/light mode toggle
 ├── lib/
-│   ├── auth/auth0.ts           # Auth0 client setup
+│   ├── auth/auth0.ts             # Auth0 client setup
+│   ├── theme-context.tsx         # Theme provider (localStorage)
 │   ├── weather/
-│   │   ├── fetcher.ts          # OpenWeatherMap API client
-│   │   └── schema.ts          # Zod validation schemas
-│   ├── cache/redis.ts          # Redis cache with fallback
+│   │   ├── fetcher.ts            # OpenWeatherMap current weather client
+│   │   ├── forecast.ts           # OpenWeatherMap 5-day forecast + scores
+│   │   └── schema.ts             # Zod validation schemas
 │   └── comfort/
-│       ├── index.ts            # Weighted combination
-│       ├── temperature.ts      # Temperature scoring
-│       ├── humidity.ts         # Humidity scoring
-│       ├── wind.ts             # Wind speed scoring
-│       └── cloudiness.ts       # Cloudiness scoring
-├── types/index.ts              # TypeScript interfaces
-├── data/cities.json            # 10 city configurations
-└── proxy.ts                    # Auth0 middleware (Next.js 16)
+│       ├── index.ts              # Weighted combination (score 0-100)
+│       ├── temperature.ts        # Temperature scoring
+│       ├── humidity.ts           # Humidity scoring
+│       ├── wind.ts               # Wind speed scoring
+│       └── cloudiness.ts         # Cloudiness scoring
+├── data/cities.json              # 10 city configurations from assignment
+├── types/index.ts                # TypeScript interfaces
+└── proxy.ts                      # Auth0 middleware (Next.js 16)
+tests/
+├── unit/                         # Comfort scoring + schema unit tests
+├── integration/                  # API auth + ranking integration tests
+├── component/                    # React component tests (jsdom)
+└── e2e/                          # Playwright end-to-end tests
 ```
+
+## Screen Recording (Assignment Part 3)
+
+A single, unedited 5-7 minute screen recording is required for submission:
+
+1. **Explain one key design decision** — for example why the Comfort Index is
+   weighted 45% temperature / 25% humidity / 15% wind / 15% cloudiness, or how
+   the caching layer is structured. Walk through the reasoning and trade-offs
+   as if explaining to a teammate who has not seen the code.
+2. **Live-implement a small extension** — add one additional parameter to the
+   Comfort Index (e.g., Visibility or Pressure), recompute the scores, and
+   confirm the city ranking updates correctly — without pausing or pre-writing
+   the change.
+
+Recording requirements: single unedited take, voice audible throughout, share
+via Google Drive ("Anyone with the link"), and verify it opens in an incognito
+window before submitting.

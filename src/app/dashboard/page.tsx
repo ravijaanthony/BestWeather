@@ -21,7 +21,6 @@ async function DashboardContent() {
 
   return (
     <DashboardClient
-      userName={session.user.name ?? "User"}
       userEmail={session.user.email ?? ""}
     />
   );

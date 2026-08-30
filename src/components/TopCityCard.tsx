@@ -8,13 +8,6 @@ interface TopCityCardProps {
   city: CityRanking;
 }
 
-interface RangeInfo {
-  label: string;
-  value: number;
-  unit: string;
-  inRange: boolean;
-}
-
 function ComfortTag({ inRange }: { inRange: boolean }) {
   return (
     <span

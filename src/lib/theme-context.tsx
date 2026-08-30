@@ -1,8 +1,25 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 type Theme = "light" | "dark";
+
+const emptySubscribe = () => () => {};
+
+function useIsMountedOnClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
 
 const ThemeContext = createContext<{
   theme: Theme;
@@ -14,11 +31,13 @@ export function useTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const mounted = useIsMountedOnClient();
   const [theme, setTheme] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
+  const appliedRef = useRef(false);
 
   useEffect(() => {
-    setMounted(true);
+    if (appliedRef.current) return;
+    appliedRef.current = true;
     const stored = localStorage.getItem("theme") as Theme | null;
     const preferred = window.matchMedia("(prefers-color-scheme: dark)")
       .matches

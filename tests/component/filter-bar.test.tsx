@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
@@ -10,7 +9,10 @@ class MockResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-(globalThis as any).ResizeObserver = MockResizeObserver;
+Object.defineProperty(globalThis, "ResizeObserver", {
+  value: MockResizeObserver,
+  writable: true,
+});
 
 describe("FilterBar", () => {
   const defaultProps = {
