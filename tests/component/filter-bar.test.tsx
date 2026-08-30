@@ -1,9 +1,16 @@
 /// <reference types="vitest" />
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { FilterBar } from "@/components/FilterBar";
+
+class MockResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+(globalThis as any).ResizeObserver = MockResizeObserver;
 
 describe("FilterBar", () => {
   const defaultProps = {
@@ -19,31 +26,32 @@ describe("FilterBar", () => {
     cleanup();
   });
 
-  it("renders sort dropdown with all options", () => {
-    const { container } = render(<FilterBar {...defaultProps} />);
-    const selects = container.querySelectorAll("select");
-    expect(selects.length).toBe(1);
-    expect(selects[0].children.length).toBe(6);
+  it("renders the sort listbox button with current selection label", () => {
+    render(<FilterBar {...defaultProps} />);
+    expect(screen.getByText("Comfort Score")).toBeTruthy();
   });
 
-  it("renders comfort tier buttons", () => {
+  it("renders all comfort tier buttons", () => {
     render(<FilterBar {...defaultProps} />);
-    const buttons = document.querySelectorAll("button");
-    const labels = Array.from(buttons).map((b) => b.textContent?.trim());
+    const buttons = Array.from(document.querySelectorAll("button"));
+    const labels = buttons.map((b) => b.textContent?.trim());
     expect(labels).toContain("All");
     expect(labels).toContain("High");
     expect(labels).toContain("Moderate");
     expect(labels).toContain("Low");
   });
 
-  it("calls onSortFieldChange when sort selection changes", () => {
+  it("opens the listbox and selects a new sort field", () => {
     const onSort = vi.fn();
-    const { container } = render(
-      <FilterBar {...defaultProps} onSortFieldChange={onSort} />
-    );
-    fireEvent.change(container.querySelector("select")!, {
-      target: { value: "temperature" },
-    });
+    render(<FilterBar {...defaultProps} onSortFieldChange={onSort} />);
+
+    const btn = screen.getByText("Comfort Score");
+    fireEvent.click(btn);
+
+    const options = screen.getAllByRole("option");
+    const tempOption = options.find((o) => o.textContent === "Temperature")!;
+    fireEvent.click(tempOption);
+
     expect(onSort).toHaveBeenCalledWith("temperature");
   });
 
@@ -71,5 +79,12 @@ describe("FilterBar", () => {
     const buttons = Array.from(document.querySelectorAll("button"));
     const highBtn = buttons.find((b) => b.textContent?.trim() === "High")!;
     expect(highBtn.className).toContain("font-medium");
+  });
+
+  it("renders the threshold legend", () => {
+    render(<FilterBar {...defaultProps} />);
+    expect(screen.getByText(/High: 70\+/)).toBeTruthy();
+    expect(screen.getByText(/Moderate: 40/)).toBeTruthy();
+    expect(screen.getByText(/Low:/)).toBeTruthy();
   });
 });

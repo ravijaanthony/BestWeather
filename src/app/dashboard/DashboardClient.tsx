@@ -152,7 +152,8 @@ export default function DashboardClient({
             )}
             <a
               href="/auth/logout"
-              className="flex items-center gap-1.5 text-xs text-white bg-red-500 hover:bg-red-600 rounded px-3 py-1.5 transition-colors"
+              aria-label="Sign out"
+              className="flex items-center gap-1.5 text-xs text-secondary border border-secondary/20 rounded px-3 py-1.5 hover:bg-secondary/10 transition-colors whitespace-nowrap"
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -167,6 +168,7 @@ export default function DashboardClient({
                   d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
                 />
               </svg>
+              <span className="hidden sm:inline">Sign out</span>
             </a>
           </div>
         </div>

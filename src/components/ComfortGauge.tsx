@@ -20,14 +20,15 @@ export function ComfortGauge({ score, cityName }: ComfortGaugeProps) {
         : "var(--low-comfort)";
 
   const ticks = Array.from({ length: 11 }, (_, i) => i * 10);
+  const svgHeight = radius + strokeWidth + 30;
 
   return (
     <div className="flex flex-col items-center">
       <svg
         width={radius * 2}
-        height={radius + strokeWidth + 30}
-        viewBox={`0 0 ${radius * 2} ${radius + strokeWidth + 30}`}
-        className="w-48 h-32 sm:w-64 sm:h-44"
+        height={svgHeight}
+        viewBox={`0 0 ${radius * 2} ${svgHeight}`}
+        className="w-40 h-28 sm:w-64 sm:h-44"
       >
         {ticks.map((tick) => {
           const angle = Math.PI - (tick / 100) * Math.PI;
@@ -49,12 +50,12 @@ export function ComfortGauge({ score, cityName }: ComfortGaugeProps) {
               />
               {tick % 50 === 0 && (
                 <text
-                  x={radius + (normalizedRadius + 14) * Math.cos(angle)}
-                  y={radius + strokeWidth / 2 + 20 + (normalizedRadius + 14) * Math.sin(angle)}
+                  x={radius + (normalizedRadius + 12) * Math.cos(angle)}
+                  y={radius + strokeWidth / 2 + 20 + (normalizedRadius + 12) * Math.sin(angle)}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="var(--secondary)"
-                  fontSize={10}
+                  fontSize={11}
                   fontFamily="var(--font-ibm-plex-mono)"
                 >
                   {tick}
